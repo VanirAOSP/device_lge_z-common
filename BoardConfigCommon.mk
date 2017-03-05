@@ -138,7 +138,7 @@ BOARD_RIL_CLASS := ../../../device/lge/z-common/ril/
 TARGET_RELEASETOOLS_EXTENSIONS := device/lge/z-common/releasetools
 
 BOARD_GLOBAL_CFLAGS += -DBOARD_CHARGING_CMDLINE_NAME='"androidboot.mode"' -DBOARD_CHARGING_CMDLINE_VALUE='"chargerlogo"'
-BOARD_USES_QC_TIME_SERVICES := true
+#BOARD_USES_QC_TIME_SERVICES := true
 
 # Shader cache config options
 # Maximum size of the  GLES Shaders that can be cached for reuse.
