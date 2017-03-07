@@ -174,11 +174,8 @@ PRODUCT_PACKAGES += \
 	libqcomvoiceprocessingdescriptors
 
 PRODUCT_PACKAGES += \
-    libmm-omxcore \
+        libmm-omxcore \
 	libdivxdrmdecrypt \
-	libOmxVdec \
-	libOmxVenc \
-	libOmxCore \
 	libstagefrighthw \
 	libc2dcolorconvert
 
