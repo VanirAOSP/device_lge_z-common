@@ -1,6 +1,10 @@
 type btlock_file, dev_type;
+<<<<<<< HEAD
 type hwaddrs_data_file, file_type, data_file_type;
 type rfkill_device, dev_type;
 type sysfs_rmnet, fs_type, sysfs_type;
 type sysfs_touchpanel, fs_type, sysfs_type;
 type sysfs_vibeamp, sysfs_type, file_type;
+=======
+type touchpanel_sysfs, fs_type, sysfs_type;
+>>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"

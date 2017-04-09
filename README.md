@@ -1,8 +1,4 @@
-Copyright 2015 - The CyanogenMod Project
-
-Copyright 2017 - The LineageOS Project
-
-Device configuration for LG G2.
+Device configuration for LG Flex.
 =====================================
 
 Basic   | Spec Sheet
@@ -21,4 +17,4 @@ Front Camera | 2.1 MP
 Release Date | August 2013
 
 
-![LG G2](http://www.lg.com/us/images/cell-phones/ls980/gallery/large02.jpg "LG G2")
+![LG Flex](http://www.lg.com/us/images/cell-phones/ls980/gallery/large02.jpg "LG Flex")

@@ -31,9 +31,12 @@
     <!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
     <bool name="config_intrusiveNotificationLed">true</bool>
 
+<<<<<<< HEAD
     <!-- Is the battery LED intrusive? Used to decide if there should be a disable option -->
     <bool name="config_intrusiveBatteryLed">true</bool>
 
+=======
+>>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"
     <!-- Flag indicating whether the we should enable the automatic brightness in Settings.
          Software implementation will be used if config_hardware_auto_brightness_available is not set -->
     <bool name="config_automatic_brightness_available">true</bool>
@@ -188,7 +191,14 @@
     <bool translatable="false" name="config_wifi_dual_band_support">true</bool>
 
     <!-- Boolean indicating whether the wifi chipset has background scan support -->
+<<<<<<< HEAD
     <bool translatable="false" name="config_wifi_background_scan_support">true</bool>
+=======
+    <bool translatable="false" name="config_wifi_background_scan_support">false</bool>
+
+    <!-- Is the notification LED intrusive? Used to decide if there should be a disable option -->
+    <bool name="config_intrusiveNotificationLed">true</bool>
+>>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"
 
     <!-- This string array should be overridden by the device to present a list of network
          attributes.  This is used by the connectivity manager to decide which networks can coexist
@@ -294,6 +304,7 @@
     <!-- The default iface on which to monitor data use -->
     <string name="config_datause_iface" translatable="false">rmnet0</string>
 
+<<<<<<< HEAD
     <!-- Hardware 'face' keys present on the device, stored as a bit field.
          This integer should equal the sum of the corresponding value for each
          of the following keys present:
@@ -321,11 +332,19 @@
          For example, a device with Home, Back and Menu keys would set this
          config to 7. -->
     <integer name="config_deviceHardwareWakeKeys">64</integer>
+=======
+    <!-- Flag indicating if the speed up audio on mt call code should be executed -->
+    <bool name="config_speed_up_audio_on_mt_calls">true</bool>
+
+
+    <integer name="config_deviceHardwareKeys">0</integer>
+>>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"
 
     <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
                   autodetected from the Configuration. -->
     <bool name="config_showNavigationBar">true</bool>
 
+<<<<<<< HEAD
     <bool name="config_lidControlsSleep">true</bool>
 
     <!-- Disable Button backlight settings -->
@@ -361,4 +380,68 @@
          NOTE: This requires additional hardware-specific code. -->
     <bool name="config_uiBlurEnabled">true</bool>
 
+=======
+
+    <integer-array name="config_autoBrightnessLevels">
+        <item>32</item>
+        <item>82</item>
+        <item>170</item>
+        <item>350</item>
+        <item>500</item>
+        <item>700</item>
+        <item>1000</item>
+        <item>1400</item>
+        <item>2400</item>
+        <item>3500</item>
+        <item>9000</item>
+    </integer-array>
+    <integer-array name="config_autoBrightnessLcdBacklightValues">
+        <item>85</item>
+        <item>123</item>
+        <item>137</item>
+        <item>147</item>
+        <item>170</item>
+        <item>178</item>
+        <item>183</item>
+        <item>195</item>
+        <item>212</item>
+        <item>220</item>
+        <item>235</item>
+        <item>255</item>
+    </integer-array>
+    <integer-array name="config_autoBrightnessButtonBacklightValues">
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+    </integer-array>
+    <integer-array name="config_autoBrightnessKeyboardBacklightValues">
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+    </integer-array>
+
+    <!-- Disable lockscreen translucent decor by default -->
+    <bool name="config_enableLockScreenTranslucentDecor">true</bool>
+
+   
+    <bool name="config_lidControlsSleep">true</bool>
+>>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"
 </resources>

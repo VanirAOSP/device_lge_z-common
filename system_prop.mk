@@ -1,5 +1,5 @@
 #
-# System Properties for G2
+# System Properties for Z, hacked from g2
 #
 
 # Audio

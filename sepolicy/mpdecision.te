@@ -1,3 +1,17 @@
+<<<<<<< HEAD
 allow mpdecision socket_device:dir w_dir_perms;
 allow mpdecision socket_device:sock_file create_file_perms;
 file_type_auto_trans(mpdecision, socket_device, mpctl_socket);
+=======
+allow mpdecision self:process execmem;
+allow mpdecision servicemanager:binder { call };
+
+type_transition mpdecision socket_device:sock_file mpctl_socket;
+
+allow mpdecision socket_device:dir add_name;
+
+allow servicemanager mpdecision:dir { search };
+allow servicemanager mpdecision:file { r_file_perms };
+allow mpdecision mpdecision_data:file { rw_file_perms };
+allow servicemanager mpdecision:process { getattr };
+>>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"
