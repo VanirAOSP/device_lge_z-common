@@ -25,9 +25,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Parcel;
-import android.os.SystemProperties;
-import android.telephony.Rlog;
 import android.telephony.SmsMessage;
+import android.os.SystemProperties;
 import android.telephony.SignalStrength;
 import android.text.TextUtils;
 import android.util.Log;
@@ -63,15 +62,8 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
     private final int RIL_INT_RADIO_ON = 2;
     private final int RIL_INT_RADIO_ON_NG = 10;
     private final int RIL_INT_RADIO_ON_HTC = 13;
-    private int mSetPreferredNetworkType = -1;
+    private int mPendingNetwork = -1;
     private Message mPendingNetworkResponse;
-
-    private boolean isGSM = false;
-
-    public LgeLteRIL(Context context, int preferredNetworkType,
-            int cdmaSubscription, Integer instanceId) {
-        this(context, preferredNetworkType, cdmaSubscription);
-    }
 
     public LgeLteRIL(Context context, int networkMode, int cdmaSubscription) {
         super(context, networkMode, cdmaSubscription);
@@ -136,7 +128,31 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
             String data, String pin2, Message result) {
         //Note: This RIL request has not been renamed to ICC,
         //       but this request is also valid for SIM and RUIM
-        iccIOForApp(command, fileid, path, p1, p2, p3, data, pin2, mAid, result);
+        RILRequest rr
+                = RILRequest.obtain(RIL_REQUEST_SIM_IO, result);
+
+        if (mUSIM)
+            path = path.replaceAll("7F20$","7FFF");
+
+        rr.mParcel.writeInt(command);
+        rr.mParcel.writeInt(fileid);
+        rr.mParcel.writeString(path);
+        rr.mParcel.writeInt(p1);
+        rr.mParcel.writeInt(p2);
+        rr.mParcel.writeInt(p3);
+        rr.mParcel.writeString(data);
+        rr.mParcel.writeString(pin2);
+        rr.mParcel.writeString(mAid);
+
+        if (RILJ_LOGD) riljLog(rr.serialString() + "> iccIO: "
+                    + " aid: " + mAid + " "
+                    + requestToString(rr.mRequest)
+                    + " 0x" + Integer.toHexString(command)
+                    + " 0x" + Integer.toHexString(fileid) + " "
+                    + " path: " + path + ","
+                    + p1 + "," + p2 + "," + p3);
+
+        send(rr);
     }
 
     @Override
@@ -166,11 +182,8 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         }
         status.mApplications = new IccCardApplicationStatus[numApplications];
 
-        ca = new IccCardApplicationStatus();
         for (int i = 0; i < numApplications; i++) {
-            if (i != 0) {
-                ca = new IccCardApplicationStatus();
-            }
+            ca = new IccCardApplicationStatus();
             ca.app_type = ca.AppTypeFromRILInt(p.readInt());
             ca.app_state = ca.AppStateFromRILInt(p.readInt());
             ca.perso_substate = ca.PersoSubstateFromRILInt(p.readInt());
@@ -187,43 +200,14 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
             }
             status.mApplications[i] = ca;
         }
-        // for sprint gsm(lte) only sim
-        if (numApplications==1 && !isGSM && ca.app_type == ca.AppTypeFromRILInt(2)) {
-            status.mApplications = new IccCardApplicationStatus[numApplications+2];
-            status.mGsmUmtsSubscriptionAppIndex = 0;
-            status.mApplications[status.mGsmUmtsSubscriptionAppIndex]=ca;
-            status.mCdmaSubscriptionAppIndex = 1;
-            status.mImsSubscriptionAppIndex = 2;
-            IccCardApplicationStatus ca2 = new IccCardApplicationStatus();
-            ca2.app_type       = ca2.AppTypeFromRILInt(4); // csim state
-            ca2.app_state      = ca.app_state;
-            ca2.perso_substate = ca.perso_substate;
-            ca2.aid            = ca.aid;
-            ca2.app_label      = ca.app_label;
-            ca2.pin1_replaced  = ca.pin1_replaced;
-            ca2.pin1           = ca.pin1;
-            ca2.pin2           = ca.pin2;
-            status.mApplications[status.mCdmaSubscriptionAppIndex] = ca2;
-            IccCardApplicationStatus ca3 = new IccCardApplicationStatus();
-            ca3.app_type       = ca3.AppTypeFromRILInt(5); // ims state
-            ca3.app_state      = ca.app_state;
-            ca3.perso_substate = ca.perso_substate;
-            ca3.aid            = ca.aid;
-            ca3.app_label      = ca.app_label;
-            ca3.pin1_replaced  = ca.pin1_replaced;
-            ca3.pin1           = ca.pin1;
-            ca3.pin2           = ca.pin2;
-            status.mApplications[status.mImsSubscriptionAppIndex] = ca3;
-        }
-
         int appIndex = -1;
         if (mPhoneType == RILConstants.CDMA_PHONE &&
              status.mCdmaSubscriptionAppIndex >= 0) {
             appIndex = status.mCdmaSubscriptionAppIndex;
-            Rlog.d(RILJ_LOG_TAG, "This is a CDMA PHONE " + appIndex);
+            Log.d(LOG_TAG, "This is a CDMA PHONE " + appIndex);
         } else {
             appIndex = status.mGsmUmtsSubscriptionAppIndex;
-            Rlog.d(RILJ_LOG_TAG, "This is a GSM PHONE " + appIndex);
+            Log.d(LOG_TAG, "This is a GSM PHONE " + appIndex);
         }
 
         if (cardState == 0) { // CardState.CARDSTATE_ABSENT
@@ -239,16 +223,10 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
 
             if (TextUtils.isEmpty(mAid))
                mAid = "";
-            Rlog.d(RILJ_LOG_TAG, "mAid " + mAid);
+            Log.d(LOG_TAG, "mAid " + mAid);
         }
 
         return status;
-    }
-
-    @Override
-    public void setPhoneType(int phoneType){
-        super.setPhoneType(phoneType);
-        isGSM = (phoneType != RILConstants.CDMA_PHONE);
     }
 
     /*
@@ -322,6 +300,12 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
         if (RILJ_LOGD) riljLog(rr.serialString() + "> " + requestToString(rr.mRequest));
 
         send(rr);
+    }
+
+    @Override
+    public void setCurrentPreferredNetworkType() {
+        if (RILJ_LOGD) riljLog("setCurrentPreferredNetworkType: " + mSetPreferredNetworkType);
+        setPreferredNetworkType(mSetPreferredNetworkType, null);
     }
 
     @Override
@@ -483,13 +467,13 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
             switch (paramMessage.what) {
                 case EVENT_RADIO_ON:
                     mRadioOn = true;
-                    Rlog.d(RILJ_LOG_TAG, "Radio on -> Forcing sim status update");
+                    Log.d(LOG_TAG, "Radio on -> Forcing sim status update");
                     sendMessage(obtainMessage(EVENT_ICC_STATUS_CHANGED));
                     break;
                 case EVENT_GET_ICC_STATUS_DONE:
                     AsyncResult asyncResult = (AsyncResult) paramMessage.obj;
                     if (asyncResult.exception != null) {
-                        Rlog.e (RILJ_LOG_TAG, "IccCardStatusDone shouldn't return exceptions!", asyncResult.exception);
+                        Log.e (LOG_TAG, "IccCardStatusDone shouldn't return exceptions!", asyncResult.exception);
                         break;
                     }
                     IccCardStatus status = (IccCardStatus) asyncResult.result;
@@ -504,10 +488,10 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
                         if (mPhoneType == RILConstants.CDMA_PHONE &&
                                status.mCdmaSubscriptionAppIndex >= 0) {
                             appIndex = status.mCdmaSubscriptionAppIndex;
-                            Rlog.d(RILJ_LOG_TAG, "This is a CDMA PHONE " + appIndex);
+                            Log.d(LOG_TAG, "This is a CDMA PHONE " + appIndex);
                         } else {
                             appIndex = status.mGsmUmtsSubscriptionAppIndex;
-                            Rlog.d(RILJ_LOG_TAG, "This is a GSM PHONE " + appIndex);
+                            Log.d(LOG_TAG, "This is a GSM PHONE " + appIndex);
                         }
 
                         IccCardApplicationStatus application = status.mApplications[appIndex];
@@ -524,7 +508,7 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
                                         mRil.setRadioState(CommandsInterface.RadioState.RADIO_ON);
                                         break;
                                     default:
-                                        Rlog.e(RILJ_LOG_TAG, "Currently we don't handle SIMs of type: " + app_type);
+                                        Log.e(LOG_TAG, "Currently we don't handle SIMs of type: " + app_type);
                                         return;
                                 }
                                 break;
@@ -536,7 +520,7 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
                                         mRil.setRadioState(CommandsInterface.RadioState.RADIO_ON);
                                         break;
                                     default:
-                                        Rlog.e(RILJ_LOG_TAG, "Currently we don't handle SIMs of type: " + app_type);
+                                        Log.e(LOG_TAG, "Currently we don't handle SIMs of type: " + app_type);
                                         return;
                                 }
                                 break;
@@ -547,17 +531,17 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
                     break;
                 case EVENT_ICC_STATUS_CHANGED:
                     if (mRadioOn) {
-                        Rlog.d(RILJ_LOG_TAG, "Received EVENT_ICC_STATUS_CHANGED, calling getIccCardStatus");
+                        Log.d(LOG_TAG, "Received EVENT_ICC_STATUS_CHANGED, calling getIccCardStatus");
                          mRil.getIccCardStatus(obtainMessage(EVENT_GET_ICC_STATUS_DONE, paramMessage.obj));
                     } else {
-                         Rlog.d(RILJ_LOG_TAG, "Received EVENT_ICC_STATUS_CHANGED while radio is not ON. Ignoring");
+                         Log.d(LOG_TAG, "Received EVENT_ICC_STATUS_CHANGED while radio is not ON. Ignoring");
                     }
                     break;
                 case EVENT_RADIO_OFF_OR_UNAVAILABLE:
                     mRadioOn = false;
                     // disposeCards(); // to be verified;
                 default:
-                    Rlog.e(RILJ_LOG_TAG, " Unknown Event " + paramMessage.what);
+                    Log.e(LOG_TAG, " Unknown Event " + paramMessage.what);
                     break;
             }
         }
@@ -599,21 +583,23 @@ public class LgeLteRIL extends RIL implements CommandsInterface {
 
         /* Pre-process the reply before popping it */
         synchronized (mRequestList) {
-            RILRequest tr = mRequestList.get(serial);
-            if (tr != null && tr.mSerial == serial) {
-                if (error == 0 || p.dataAvail() > 0) {
-                    try {switch (tr.mRequest) {
-                        /* Get those we're interested in */
-                        case RIL_REQUEST_DATA_REGISTRATION_STATE:
-                            rr = tr;
-                            break;
-                    }} catch (Throwable thr) {
-                        // Exceptions here usually mean invalid RIL responses
-                        if (tr.mResult != null) {
-                            AsyncResult.forMessage(tr.mResult, null, thr);
-                            tr.mResult.sendToTarget();
+            for (int i = 0, s = mRequestList.size() ; i < s ; i++) {
+                RILRequest tr = mRequestList.get(i);
+                if (tr != null && tr.mSerial == serial) {
+                    if (error == 0 || p.dataAvail() > 0) {
+                        try {switch (tr.mRequest) {
+                            /* Get those we're interested in */
+                            case RIL_REQUEST_DATA_REGISTRATION_STATE:
+                                rr = tr;
+                                break;
+                        }} catch (Throwable thr) {
+                            // Exceptions here usually mean invalid RIL responses
+                            if (tr.mResult != null) {
+                                AsyncResult.forMessage(tr.mResult, null, thr);
+                                tr.mResult.sendToTarget();
+                            }
+                            return tr;
                         }
-                        return tr;
                     }
                 }
             }
