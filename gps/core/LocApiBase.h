@@ -68,7 +68,7 @@ class LocApiProxyBase {
 public:
     inline LocApiProxyBase() {}
     inline virtual ~LocApiProxyBase() {}
-    inline virtual void* getSibling2() { return NULL; }
+    inline virtual void* getSiblinz.) { return NULL; }
 };
 
 class LocApiBase {

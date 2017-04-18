@@ -31,8 +31,8 @@ on init
     write /sys/block/zram0/comp_algorithm lz4
 
 on fs
-    mount_all ./fstab.g2
-    swapon_all ./fstab.g2
+    mount_all ./fstab.z
+    swapon_all ./fstab.z
     restorecon_recursive /persist
     restorecon_recursive /persist-lg
     restorecon_recursive /sns
