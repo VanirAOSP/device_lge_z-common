@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2014 The CyanogenMod Project
+# Copyright (C) 2013-2015 The CyanogenMod Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,46 +14,118 @@
 # limitations under the License.
 #
 
-TARGET_GLOBAL_CFLAGS += -mfpu=neon -mfloat-abi=softfp
-TARGET_GLOBAL_CPPFLAGS += -mfpu=neon -mfloat-abi=softfp
-TARGET_CPU_ABI := armeabi-v7a
-TARGET_CPU_ABI2 := armeabi
-TARGET_CPU_SMP := true
+TARGET_SPECIFIC_HEADER_PATH := device/lge/g2-common/include
+
+# Architecture
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv7-a-neon
+TARGET_BOARD_PLATFORM := msm8974
+TARGET_BOARD_PLATFORM_GPU := qcom-adreno330
+TARGET_CPU_ABI := armeabi-v7a
+TARGET_CPU_ABI2 := armeabi
 TARGET_CPU_VARIANT := krait
-ARCH_ARM_HAVE_TLS_REGISTER := true
-
-# Krait optimizations
-TARGET_USE_KRAIT_BIONIC_OPTIMIZATION := true
-TARGET_USE_KRAIT_PLD_SET := true
-TARGET_KRAIT_BIONIC_PLDOFFS := 10
-TARGET_KRAIT_BIONIC_PLDTHRESH := 10
-TARGET_KRAIT_BIONIC_BBTHRESH := 64
-TARGET_KRAIT_BIONIC_PLDSIZE := 64
-
-TARGET_NO_RADIOIMAGE := true
 
 # Bootloader
-TARGET_BOOTLOADER_BOARD_NAME := MSM8974
+TARGET_BOOTLOADER_BOARD_NAME := galbi
 TARGET_NO_BOOTLOADER := true
+TARGET_NO_RADIOIMAGE := true
 
-# Kernel information
-BOARD_KERNEL_BASE     := 0x00000000
-BOARD_KERNEL_CMDLINE := := console=ttyHSL0,115200,n8 androidboot.hardware=z user_debug=31 msm_rtb.filter=0x0 androidboot.selinux=permissive
-BOARD_MKBOOTIMG_ARGS  := --ramdisk_offset 0x05000000 --tags_offset 0x04800000
+# Kernel
+BOARD_CUSTOM_BOOTIMG := true
+BOARD_CUSTOM_BOOTIMG_MK := device/lge/g2-common/releasetools/mkbootimg.mk
+BOARD_KERNEL_BASE := 0x00000000
+BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.hardware=g2
 BOARD_KERNEL_PAGESIZE := 2048
 BOARD_KERNEL_SEPARATED_DT := true
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x05000000 --tags_offset 0x00000100
+TARGET_KERNEL_SOURCE := kernel/lge/msm8974
 
-BOARD_CUSTOM_BOOTIMG := true
-BOARD_CUSTOM_BOOTIMG_MK := device/lge/z-common/mkbootimg.mk
-TARGET_KERNEL_SOURCE := kernel/lge/zee
-TARGET_REQUIRES_BUMP := true
+# Audio
+AUDIO_FEATURE_ENABLED_NEW_SAMPLE_RATE := true
+BOARD_USES_ALSA_AUDIO := true
+USE_CUSTOM_AUDIO_POLICY := 1
 
-TARGET_BOOTLOADER_BOARD_NAME := galbi
-TARGET_BOARD_PLATFORM := msm8974
+# Bluetooth
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/lge/g2-common/bluetooth
+BOARD_CUSTOM_BT_CONFIG := device/lge/g2-common/bluetooth/vnd_g2.txt
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_BCM := true
 
-WPA_SUPPLICANT_VERSION := VER_0_8_X
+# Camera
+BOARD_GLOBAL_CFLAGS += -DCAMERA_VENDOR_L_COMPAT
+TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
+USE_DEVICE_SPECIFIC_CAMERA := true
+
+# Charger
+BOARD_CHARGING_CMDLINE_NAME := "androidboot.mode"
+BOARD_CHARGING_CMDLINE_VALUE := "chargerlogo"
+BOARD_CHARGER_ENABLE_SUSPEND := true
+
+# CMHW
+BOARD_HARDWARE_CLASS := device/lge/g2-common/cmhw/
+TARGET_TAP_TO_WAKE_NODE := "/sys/devices/virtual/input/lge_touch/touch_gesture"
+
+# Display
+HAVE_ADRENO_SOURCE := false
+MAX_EGL_CACHE_KEY_SIZE := 12*1024
+MAX_EGL_CACHE_SIZE := 2048*1024
+NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
+TARGET_USES_ION := true
+USE_OPENGL_RENDERER := true
+SF_VSYNC_EVENT_PHASE_OFFSET_NS := 5000000
+VSYNC_EVENT_PHASE_OFFSET_NS := 7500000
+
+# Fonts
+EXTENDED_FONT_FOOTPRINT := true
+
+# Lights
+TARGET_PROVIDES_LIBLIGHT := true
+
+# Partitions
+BOARD_FLASH_BLOCK_SIZE := 131072
+BOARD_BOOTIMAGE_PARTITION_SIZE := 16777216 # 16.7M
+BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
+BOARD_CACHEIMAGE_PARTITION_SIZE := 838860800 # 830M
+BOARD_PERSISTIMAGE_PARTITION_SIZE := 33554432 # 33.6M
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216 # 16.7M
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2684354560 # 2.5G (actually 2.75, but leave room for model variation)
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 13725837312 # 12.8G (its much larger, but this is enough for now)
+
+# Power
+TARGET_POWERHAL_VARIANT := qcom
+
+# Qualcomm support
+BOARD_USES_QCOM_HARDWARE := true
+BOARD_USES_QC_TIME_SERVICES := true
+
+# Recovery
+BOARD_GLOBAL_CFLAGS := -DBOARD_RECOVERY_BLDRMSG_OFFSET=128
+BOARD_NO_SECURE_DISCARD := true
+TARGET_RECOVERY_DENSITY := xhdpi
+TARGET_RECOVERY_FSTAB := device/lge/g2-common/rootdir/etc/fstab.g2
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
+TARGET_RECOVERY_UPDATER_LIBS := librecovery_updater_g2
+TARGET_USERIMAGES_USE_EXT4 := true
+TARGET_USERIMAGES_USE_F2FS := true
+
+# Releasetools
+TARGET_RELEASETOOLS_EXTENSIONS := device/lge/g2-common/releasetools
+
+# RIL
+BOARD_RIL_CLASS += ../../../device/lge/g2-common/ril
+
+# SDClang
+TARGET_USE_SDCLANG := true
+
+# SELinux policies
+include device/qcom/sepolicy/sepolicy.mk
+
+BOARD_SEPOLICY_DIRS += \
+    device/lge/g2-common/sepolicy
+
+# Wi-Fi
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 WPA_SUPPLICANT_VERSION      := VER_0_8_X
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
@@ -63,94 +135,3 @@ BOARD_WLAN_DEVICE           := bcmdhd
 WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/bcmdhd/parameters/firmware_path"
 WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/fw_bcmdhd.bin"
 WIFI_DRIVER_FW_PATH_AP      := "/system/etc/firmware/fw_bcmdhd_apsta.bin"
-
-BOARD_EGL_CFG := device/lge/z-common/configs/egl.cfg
-
-USE_OPENGL_RENDERER := true
-TARGET_USES_ION := true
-TARGET_USES_OVERLAY := true
-TARGET_USES_C2D_COMPOSITION := true
-
-OVERRIDE_RS_DRIVER := libRSDriver_adreno.so
-
-#BOARD_USES_QCOM_HARDWARE := true
-BOARD_GLOBAL_CFLAGS += -DLG_CAMERA_HARDWARE -DLPA_DEFAULT_BUFFER_SIZE=512
-#-DQCOM_BSP -DQCOM_HARDWARE
-TARGET_DISPLAY_USE_RETIRE_FENCE := true
-
-TARGET_QCOM_DISPLAY_VARIANT := caf
-
-# Media 
-TARGET_QCOM_MEDIA_VARIANT := caf
-
-# Camera
-USE_DEVICE_SPECIFIC_CAMERA := true
-BOARD_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
-
-# Audio
-TARGET_USES_QCOM_COMPRESSED_AUDIO := true
-BOARD_HAVE_LOW_LATENCY_AUDIO := true
-BOARD_USES_ALSA_AUDIO:= true
-AUDIO_FEATURE_DEEP_BUFFER_PRIMARY := true
-AUDIO_FEATURE_DYNAMIC_VOLUME_MIXER := true
-
-## Recovery
-RECOVERY_FSTAB_VERSION = 2
-TARGET_RECOVERY_FSTAB = device/lge/z-common/ramdisk/fstab.z
-BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_15x24.h\"
-#ENABLE_LOKI_RECOVERY := true
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-BOARD_HAS_NO_SELECT_BUTTON := true
-BOARD_RECOVERY_SWIPE := true
-BOARD_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
-
-TARGET_USERIMAGES_USE_EXT4 := true
-BOARD_BOOTIMAGE_PARTITION_SIZE := 23068672 # 22M
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 23068672 # 22M
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 880803840 # 840M
-
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 6189744128 # 5.9G
-BOARD_FLASH_BLOCK_SIZE := 131072 # (BOARD_KERNEL_PAGESIZE * 64)
-
-BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/lge/z-common/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/lge/z-common/bluetooth/vnd_z.txt
-
-# GPS
-BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
-TARGET_NO_RPC := true
-
-BOARD_CHARGER_ENABLE_SUSPEND := true
-
-BOARD_HARDWARE_CLASS := device/lge/z-common/cmhw/
-
-# SELinux policies
-# qcom sepolicy
-include device/qcom/sepolicy/sepolicy.mk
-
-BOARD_SEPOLICY_DIRS += \
-        device/lge/z-common/sepolicy
-
-BOARD_NFC_HAL_SUFFIX := z
-
-BOARD_RIL_CLASS := ../../../device/lge/z-common/ril/
-TARGET_RELEASETOOLS_EXTENSIONS := device/lge/z-common/releasetools
-
-BOARD_GLOBAL_CFLAGS += -DBOARD_CHARGING_CMDLINE_NAME='"androidboot.mode"' -DBOARD_CHARGING_CMDLINE_VALUE='"chargerlogo"'
-#BOARD_USES_QC_TIME_SERVICES := true
-
-# Shader cache config options
-# Maximum size of the  GLES Shaders that can be cached for reuse.
-# Increase the size if shaders of size greater than 12KB are used.
-MAX_EGL_CACHE_KEY_SIZE := 12*1024
-
-# Maximum GLES shader cache size for each app to store the compiled shader
-# binaries. Decrease the size if RAM or Flash Storage size is a limitation
-# of the device.
-MAX_EGL_CACHE_SIZE := 2048*1024
-
-# Surfaceflinger optimization for VD surfaces
-TARGET_FORCE_HWC_FOR_VIRTUAL_DISPLAYS := true
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
-
