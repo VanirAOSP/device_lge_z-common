@@ -10,12 +10,7 @@ LOCAL_SHARED_LIBRARIES := \
 LOCAL_C_INCLUDES += \
     system/media/camera/include
 
-LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw
-<<<<<<< HEAD
 LOCAL_MODULE := camera.$(TARGET_BOARD_PLATFORM)
-=======
-LOCAL_MODULE := camera.z
->>>>>>> 16e64b6... Revert "Let's diff against g2-common 12.0... so the diff is the bring up"
 LOCAL_MODULE_TAGS := optional
 
 include $(BUILD_SHARED_LIBRARY)
